@@ -1,0 +1,63 @@
+/* Existing styles */
+@keyframes reduced-bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+.animate-reduced-bounce { animation: reduced-bounce 2s infinite; }
+@keyframes slideIn {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+.chatbot { animation: slideIn 0.5s ease-out; }
+.forecast-table { animation: slideIn 0.5s ease-out; }
+
+/* New styles for responsive design */
+@media (max-width: 768px) {
+    #sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease-in-out;
+    }
+    #sidebar.active {
+        transform: translateX(0);
+    }
+    main {
+        margin-left: 0;
+    }
+}
+
+/* New styles for hamburger icon visibility */
+/* Adjust margin for better spacing */
+#menuToggle {
+    margin-left: 12px; /* Creates a gap between the weather button and the hamburger */
+}
+
+#menuToggle {
+    display: block;
+    z-index: 50;
+}
+
+/* Sidebar slide in and out */
+#sidebar {
+    transition: transform 0.3s ease-in-out;
+}
+
+/* Animation for sidebar when it's active */
+#sidebar.active {
+    transform: translateX(0);
+}
+
+/* Hide the sidebar by default on medium and small screens */
+@media (max-width: 768px) {
+    #sidebar {
+        transform: translateX(-100%);
+    }
+
+    /* Display hamburger icon */
+    #menuToggle {
+        display: block;
+    }
+}

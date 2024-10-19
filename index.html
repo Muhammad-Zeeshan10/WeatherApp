@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.28.0/feather.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <script type="importmap">
+        {
+          "imports": {
+            "google-generative-ai": "https://esm.run/@google/generative-ai"
+          }
+        }
+    </script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                    },
+                },
+            },
+        }
+    </script>
+
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans">
+    <div class="flex min-h-screen relative">
+        
+
+        <!-- Sidebar (hidden by default on medium and small screens) -->
+        <aside id="sidebar" class="fixed top-0 left-0 w-64 bg-gradient-to-b from-indigo-600 to-blue-500 shadow-lg p-8 flex flex-col h-screen overflow-y-auto z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
+            <h1 class="text-2xl font-bold text-white text-center mb-8">WeatherPro</h1>
+            <nav class="flex-grow">
+                <a href="#" data-link="dashboard" class="flex items-center py-3 px-4 mb-2 text-white rounded-md hover:bg-white/20 transition-colors active:bg-white/30">
+                    <i data-feather="home" class="mr-3"></i>
+                    Dashboard
+                </a>
+                <a href="#" data-link="tables" class="flex items-center py-3 px-4 mb-2 text-white rounded-md hover:bg-white/20 transition-colors">
+                    <i data-feather="map-pin" class="mr-3"></i>
+                    Tables
+                </a>
+            </nav>
+            <!-- <div class="mt-auto">
+                <a href="#" class="flex items-center py-3 px-4 text-white rounded-md bg-red-500/20 hover:bg-red-500/30 transition-colors">
+                    <i data-feather="log-out" class="mr-3"></i>
+                    Logout
+                </a>
+            </div> -->
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-4 md:p-8 overflow-y-auto ml-0 md:ml-64 transition-all duration-300">
+
+            <header class="flex flex-col md:flex-row justify-between items-center mb-8">
+                <!-- Search bar and Get Weather button -->
+                <div class="relative flex-1 max-w-2xl flex w-full mb-4 md:mb-0">
+                    <i data-feather="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    <input type="text" id="cityInput" placeholder="Search for a city..." class="w-full py-2 pl-10 pr-4 border-2 border-gray-200 rounded-l-full focus:outline-none focus:border-indigo-600 transition-colors">
+                    <button id="getWeatherBtn" class="bg-indigo-600 text-white py-2 px-6 rounded-r-full hover:bg-indigo-700 transition-colors">Get Weather</button>
+                    <!-- Hamburger menu for small screens, positioned to the right of the search bar -->
+                    <div class="md:hidden ml-4">
+                        <button id="menuToggle" class="text-indigo-600 focus:outline-none">
+                            <i data-feather="menu" class="w-8 h-16"></i>
+                        </button>
+                    </div>
+                </div>
+            
+                <!-- Profile Section -->
+                <div class="hidden md:flex items-center mt-4 md:mt-0" style="min-width: 170px;">
+                    <span class="mr-4 font-medium text-lg">Zeeshan Nazim</span>
+                    <img src="profile.png" alt="User Profile" class="w-12 h-12 rounded-full object-cover">
+                </div>
+            </header>
+            
+            
+            
+            
+            
+
+            <!-- Weather Widget -->
+            <section id="weatherWidget" class="bg-white rounded-lg p-4 md:p-8 shadow-md mb-8 transform hover:-translate-y-1 transition-all">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-6">
+                    <div class="text-center md:text-left mb-4 md:mb-0">
+                        <h2 id="cityName" class="text-3xl font-bold text-indigo-600 mb-2">New York City</h2>
+                        <p id="description" class="text-xl text-gray-400 mb-4">Partly Cloudy</p>
+                        <div class="flex items-center justify-center md:justify-start text-4xl font-semibold">
+                            <i data-feather="thermometer" class="text-green-500 mr-2"></i>
+                            <span id="temperature" class="mr-4">72°F</span>
+                            <div class="flex items-center ml-2 space-x-2 text-lg">
+                                <button id="celsiusBtn" class="toggle-active">°C</button>
+                                <span>/</span>
+                                <button id="fahrenheitBtn" class="toggle-inactive">°F</button>
+                            </div>
+                        </div>
+                    </div>
+                    <img src="https://cdn-icons-png.flaticon.com/128/4814/4814489.png" alt="Weather Icon" class="w-24 h-24 animate-reduced-bounce">
+                </div>
+                <div class="flex flex-wrap justify-around text-center">
+                    <div class="flex flex-col items-center mb-4 md:mb-0">
+                        <i data-feather="droplet" class="text-indigo-600 mb-2"></i>
+                        <p id="humidity">Humidity: 65%</p>
+                    </div>
+                    <div class="flex flex-col items-center mb-4 md:mb-0">
+                        <i data-feather="wind" class="text-indigo-600 mb-2"></i>
+                        <p id="windSpeed">Wind: 5 mph</p>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <i data-feather="sun" class="text-indigo-600 mb-2"></i>
+                        <p id="uvIndex">UV Index: 3</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Charts -->
+            <section id="chartsSection" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+                <div class="bg-white rounded-lg p-4 md:p-6 shadow-md transform hover:-translate-y-1 transition-all">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                        <i data-feather="bar-chart-2" class="text-indigo-600 mr-2"></i>
+                        Temperature Forecast
+                    </h3>
+                    <canvas id="temperatureChart"></canvas>
+                </div>
+                <div class="bg-white rounded-lg p-4 md:p-6 shadow-md transform hover:-translate-y-1 transition-all">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                        <i data-feather="cloud" class="text-indigo-600 mr-2"></i>
+                        Weather Conditions
+                    </h3>
+                    <canvas id="conditionChart"></canvas>
+                </div>
+                <div class="bg-white rounded-lg p-4 md:p-6 shadow-md transform hover:-translate-y-1 transition-all">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                        <i data-feather="trending-up" class="text-indigo-600 mr-2"></i>
+                        Temperature Trend
+                    </h3>
+                    <canvas id="temperatureTrendChart"></canvas>
+                </div>
+            </section>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl w-full animate-slideIn">
+                <!-- Forecast Table Section -->
+                <section id="forecastTableSection" class="bg-white rounded-xl p-4 md:p-8 shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105">
+                    <h2 class="text-2xl md:text-3xl font-bold text-indigo-800 mb-6 flex items-center">
+                        <svg class="w-6 h-6 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-4 9v-4m-6 4v6h12v-6"></path>
+                        </svg>
+                        5-Day Weather Forecast
+                    </h2>
+                    <div class="overflow-x-auto">
+                        <table id="forecastTable" class="min-w-full text-left">
+                            <!-- Table content remains the same -->
+                        </table>
+                    </div>
+                </section>
+            
+                <!-- Weather Chatbot Section -->
+                <section id="chatbotSection" class="bg-white rounded-xl p-4 md:p-8 shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105">
+                    <h2 class="text-2xl md:text-3xl font-bold text-indigo-800 mb-6 flex items-center">
+                        <svg class="w-8 h-8 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path>
+                        </svg>
+                        Weather Chatbot
+                    </h2>
+                    <div class="border border-gray-300 rounded-lg mb-4 overflow-hidden relative">
+                        <div class="bg-indigo-600 text-white px-4 py-2">Chat Messages</div>
+                        <div id="chatMessages" class="p-4 h-60 md:h-80 bg-gray-100 overflow-y-auto">
+                            <!-- Chat messages will appear here -->
+                        </div>
+                        <div id="typing" class="hidden absolute bottom-0 left-0 w-full bg-white p-2">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-2 h-2 bg-gray-500 rounded-full animate-pulse"></div>
+                                <div class="w-2 h-2 bg-gray-500 rounded-full animate-pulse delay-75"></div>
+                                <div class="w-2 h-2 bg-gray-500 rounded-full animate-pulse delay-150"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <input id="userInput" type="text" placeholder="Ask about the weather..." class="w-full px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-indigo-600">
+                        <button id="sendButton" class="bg-indigo-600 text-white px-6 py-2 rounded-r-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all duration-300">
+                            Send
+                        </button>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script type="module" src="script2.js"></script>
+    
+    <script>
+        feather.replace();
+        document.getElementById('menuToggle').addEventListener('click', function () {
+    const sidebar = document.getElementById('sidebar');
+
+    // Toggle sidebar visibility
+    sidebar.classList.toggle('active');
+
+});
+
+        
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>
